@@ -17,11 +17,9 @@ public class Product {
     private String desc;
     @NotNull @DecimalMin("0.0") private BigDecimal price;
     private Long userId;
-    @ManyToMany
-    @JoinTable(name = "product_categories",
-        joinColumns = @JoinColumn(name = "product_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private List<Category> categories = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     protected Product() {}
     public Product(String title, Integer quantity, String desc, BigDecimal price, Long userId) {
@@ -38,5 +36,6 @@ public class Product {
     public void setPrice(BigDecimal price) { this.price = price; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
-    public List<Category> getCategories() { return categories; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 }

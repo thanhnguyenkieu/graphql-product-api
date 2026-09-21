@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByPriceAsc();
-    List<Product> findByCategoriesId(Long categoryId);
+    List<Product> findByCategoryId(Long categoryId);
 }

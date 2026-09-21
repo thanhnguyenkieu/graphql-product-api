@@ -14,7 +14,7 @@ public class Category {
     private Long id;
     @NotBlank private String name;
     private String images;
-    @ManyToMany(mappedBy = "categories")
+    @OneToMany(mappedBy = "category")
     private List<Product> products = new ArrayList<>();
     @ManyToMany(mappedBy = "categories")
     private List<User> users = new ArrayList<>();

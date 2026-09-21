@@ -12,6 +12,7 @@ API quản lý `Product`, `Category`, `User` và các quan hệ nhiều-nhiều 
 
 ## Chức năng GraphQL
 
-- Query toàn bộ sản phẩm theo giá tăng dần: `{ products { id title price categories { name } } }`
+- Query toàn bộ sản phẩm theo giá tăng dần: `{ products { id title price category { name } } }`
 - Lấy sản phẩm theo category: `{ productsByCategory(categoryId: 1) { title price } }`
-- CRUD Product và Category thông qua các mutation trong `src/main/resources/graphql/schema.graphqls`.
+- CRUD Product, Category và User; User có thể gán nhiều Category thông qua các mutation trong `src/main/resources/graphql/schema.graphqls`.
+- Giao diện AJAX hỗ trợ thêm/xóa Product và Category.

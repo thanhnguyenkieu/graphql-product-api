@@ -20,26 +20,26 @@ public class ProductGraphQlController {
 
     @QueryMapping public List<Product> products() { return products.findAllByOrderByPriceAsc(); }
     @QueryMapping public List<Product> productsByCategory(@Argument Long categoryId) {
-        return products.findByCategoriesId(categoryId);
+        return products.findByCategoryId(categoryId);
     }
     @QueryMapping public List<Category> categories() { return categories.findAll(); }
     @QueryMapping public List<User> users() { return users.findAll(); }
 
     @MutationMapping public Product createProduct(@Argument String title, @Argument Integer quantity,
                                                    @Argument String desc, @Argument BigDecimal price,
-                                                   @Argument Long userId, @Argument List<Long> categoryIds) {
+                                                   @Argument Long userId, @Argument Long categoryId) {
         Product product = new Product(title, quantity, desc, price, userId);
-        attachCategories(product, categoryIds);
+        product.setCategory(findCategory(categoryId));
         return products.save(product);
     }
     @MutationMapping public Product updateProduct(@Argument Long id, @Argument String title,
                                                    @Argument Integer quantity, @Argument String desc,
                                                    @Argument BigDecimal price, @Argument Long userId,
-                                                   @Argument List<Long> categoryIds) {
+                                                   @Argument Long categoryId) {
         Product product = products.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found"));
         product.setTitle(title); product.setQuantity(quantity); product.setDesc(desc);
-        product.setPrice(price); product.setUserId(userId); product.getCategories().clear();
-        attachCategories(product, categoryIds);
+        product.setPrice(price); product.setUserId(userId);
+        product.setCategory(findCategory(categoryId));
         return products.save(product);
     }
     @MutationMapping public Boolean deleteProduct(@Argument Long id) {
@@ -57,7 +57,32 @@ public class ProductGraphQlController {
         if (!categories.existsById(id)) return false;
         categories.deleteById(id); return true;
     }
-    private void attachCategories(Product product, List<Long> ids) {
-        if (ids != null) ids.forEach(id -> categories.findById(id).ifPresent(product.getCategories()::add));
+    @MutationMapping public User createUser(@Argument String fullname, @Argument String email,
+                                            @Argument String password, @Argument String phone,
+                                            @Argument List<Long> categoryIds) {
+        User user = new User(fullname, email, password, phone);
+        attachUserCategories(user, categoryIds);
+        return users.save(user);
+    }
+    @MutationMapping public User updateUser(@Argument Long id, @Argument String fullname,
+                                            @Argument String email, @Argument String password,
+                                            @Argument String phone, @Argument List<Long> categoryIds) {
+        User user = users.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setFullname(fullname); user.setEmail(email); user.setPassword(password); user.setPhone(phone);
+        user.getCategories().clear();
+        attachUserCategories(user, categoryIds);
+        return users.save(user);
+    }
+    @MutationMapping public Boolean deleteUser(@Argument Long id) {
+        if (!users.existsById(id)) return false;
+        users.deleteById(id);
+        return true;
+    }
+    private Category findCategory(Long id) {
+        return id == null ? null : categories.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+    }
+    private void attachUserCategories(User user, List<Long> ids) {
+        if (ids != null) ids.forEach(id -> user.getCategories().add(findCategory(id)));
     }
 }

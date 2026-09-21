@@ -7,10 +7,22 @@ button{background:#2563eb;color:white;border:0;padding:8px 12px;border-radius:5p
 input{padding:8px;margin:4px;border:1px solid #cbd5e1;border-radius:4px}.toolbar{display:flex;gap:8px;align-items:center}
 table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left}
 </style></head>
-<body><h1>Quản lý sản phẩm</h1><div class="toolbar"><button onclick="loadProducts()">Sắp xếp giá tăng dần</button><button onclick="loadCategories()">Tải danh mục</button></div>
+<body><h1>Quản lý sản phẩm và danh mục</h1>
+<div class="toolbar"><button onclick="loadProducts()">Sản phẩm theo giá tăng dần</button><button onclick="loadCategories()">Danh mục</button></div>
+<h2>Thêm sản phẩm</h2><form onsubmit="createProduct(event)">
+<input id="title" placeholder="Tên sản phẩm" required><input id="quantity" type="number" min="0" placeholder="Số lượng" required>
+<input id="price" type="number" min="0" step="0.01" placeholder="Giá" required><input id="desc" placeholder="Mô tả">
+<input id="userId" type="number" placeholder="User ID" required><input id="categoryId" type="number" placeholder="Category ID">
+<button>Thêm sản phẩm</button></form>
+<h2>Thêm danh mục</h2><form onsubmit="createCategory(event)">
+<input id="categoryName" placeholder="Tên danh mục" required><input id="images" placeholder="URL hình ảnh"><button>Thêm danh mục</button></form>
 <div id="output">Đang tải...</div><script>
 async function gql(query,variables={}){const r=await fetch('/graphql',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query,variables})});const j=await r.json();if(j.errors)throw Error(j.errors[0].message);return j.data}
-async function loadProducts(){const d=await gql('{products{id title quantity desc price userId categories{name}}}');document.querySelector('#output').innerHTML='<table><tr><th>Tên</th><th>Số lượng</th><th>Giá</th><th>Danh mục</th></tr>'+d.products.map(p=>`<tr><td>${p.title}</td><td>${p.quantity}</td><td>${p.price.toLocaleString('vi-VN')}</td><td>${p.categories.map(c=>c.name).join(', ')}</td></tr>`).join('')+'</table>'}
-async function loadCategories(){const d=await gql('{categories{id name products{title}}}');document.querySelector('#output').innerHTML='<h2>Danh mục</h2><ul>'+d.categories.map(c=>`<li><b>${c.name}</b>: ${c.products.length} sản phẩm</li>`).join('')+'</ul>'}
+async function loadProducts(){const d=await gql('{products{id title quantity desc price userId category{id name}}}');document.querySelector('#output').innerHTML='<table><tr><th>ID</th><th>Tên</th><th>Số lượng</th><th>Giá</th><th>Danh mục</th><th>Thao tác</th></tr>'+d.products.map(p=>`<tr><td>${p.id}</td><td>${p.title}</td><td>${p.quantity}</td><td>${p.price.toLocaleString('vi-VN')}</td><td>${p.category?.name||''}</td><td><button onclick="deleteProduct(${p.id})">Xóa</button></td></tr>`).join('')+'</table>'}
+async function loadCategories(){const d=await gql('{categories{id name products{title}}}');document.querySelector('#output').innerHTML='<h2>Danh mục</h2><ul>'+d.categories.map(c=>`<li><b>${c.name}</b>: ${c.products.length} sản phẩm <button onclick="deleteCategory(${c.id})">Xóa</button></li>`).join('')+'</ul>'}
+async function createProduct(e){e.preventDefault();await gql('mutation($title:String!,$quantity:Int!,$desc:String,$price:Float!,$userId:ID!,$categoryId:ID){createProduct(title:$title,quantity:$quantity,desc:$desc,price:$price,userId:$userId,categoryId:$categoryId){id}}',{title:title.value,quantity:+quantity.value,desc:desc.value,price:+price.value,userId:userId.value,categoryId:categoryId.value||null});e.target.reset();loadProducts()}
+async function createCategory(e){e.preventDefault();await gql('mutation($name:String!,$images:String){createCategory(name:$name,images:$images){id}}',{name:categoryName.value,images:images.value});e.target.reset();loadCategories()}
+async function deleteProduct(id){if(confirm('Xóa sản phẩm này?')){await gql('mutation($id:ID!){deleteProduct(id:$id)}',{id});loadProducts()}}
+async function deleteCategory(id){if(confirm('Xóa danh mục này?')){await gql('mutation($id:ID!){deleteCategory(id:$id)}',{id});loadCategories()}}
 loadProducts().catch(e=>document.querySelector('#output').textContent='Lỗi: '+e.message)
 </script></body></html>
