@@ -2,6 +2,7 @@ package com.example.graphqlproductapi.graphql;
 
 import com.example.graphqlproductapi.category.*;
 import com.example.graphqlproductapi.product.*;
+import com.example.graphqlproductapi.user.*;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
 import java.math.BigDecimal;
@@ -11,9 +12,10 @@ import java.util.List;
 public class ProductGraphQlController {
     private final ProductRepository products;
     private final CategoryRepository categories;
+    private final UserRepository users;
 
-    public ProductGraphQlController(ProductRepository products, CategoryRepository categories) {
-        this.products = products; this.categories = categories;
+    public ProductGraphQlController(ProductRepository products, CategoryRepository categories, UserRepository users) {
+        this.products = products; this.categories = categories; this.users = users;
     }
 
     @QueryMapping public List<Product> products() { return products.findAllByOrderByPriceAsc(); }
@@ -21,6 +23,7 @@ public class ProductGraphQlController {
         return products.findByCategoriesId(categoryId);
     }
     @QueryMapping public List<Category> categories() { return categories.findAll(); }
+    @QueryMapping public List<User> users() { return users.findAll(); }
 
     @MutationMapping public Product createProduct(@Argument String title, @Argument Integer quantity,
                                                    @Argument String desc, @Argument BigDecimal price,

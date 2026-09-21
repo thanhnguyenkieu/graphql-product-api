@@ -1,6 +1,6 @@
 # GraphQL Product API
 
-API quản lý `Product`, `Category` và quan hệ nhiều-nhiều giữa chúng bằng Spring Boot, Spring GraphQL, Spring Data JPA và MySQL.
+API quản lý `Product`, `Category`, `User` và các quan hệ nhiều-nhiều bằng Spring Boot, Spring GraphQL, Spring Data JPA và MySQL.
 
 ## Chạy project
 
